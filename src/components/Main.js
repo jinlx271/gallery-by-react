@@ -11,45 +11,69 @@ imagesUrlData=(function getImageData(__imageDataArr){
 	for(var i=0;i<__imageDataArr.length;i++){
 		var imageData=require('../images/'+imagesUrlData[i].imageName);
 		imagesUrlData[i].imageUrl=imageData;
-		//console.log("imageData i="+i+"; imageData=="+'../images/'+imagesUrlData[i].imageName);
 		}
 	return __imageDataArr;
 	})(imagesUrlData);
-//console.log("imagesUrlData="+JSON.stringify(imagesUrlData));
-	
+//console.log('imagesUrlData='+JSON.stringify(imagesUrlData));
+//imageFigure组件
 class ImageFigure extends React.Component{
-	// /*style={{left:this.props.arrange.pos.left,top:this.props.arrange.pos.top}}*/
+	constructor(props){
+	super(props);
+	this.state={
+		//status:0
+		};
+	}
+	
 	//点击后处理方法 如果是中心图片需要翻转  如果是其他区域的图片需要重新排布图片
-    
 	onClickHandler(){
-	 // alert('位置中心的index=='+this.props.centerIndex);
 	  if(this.props.arrange.index==this.props.centerIndex){
 		  //翻转
-	  }else{
+		  this.props.inverse();
+	  }else{ 
 		  this.props.handler(this.props.arrange.index);
 	  }
 	  
 	} 
-	
+	/*
+	*render
+	*/
 	render(){
 		//transform 兼容
 		var styleObj={
-			"left":this.props.arrange.pos.left,
-			"top":this.props.arrange.pos.top,
-			"transform":this.props.arrange.pos.transStyle,
-			"-ms-transform":this.props.arrange.pos.transStyle,
-			"-webkit-transform":this.props.arrange.pos.transStyle,
-			"-o-transform":this.props.arrange.pos.transStyle,
-			"-moz-transform":this.props.arrange.pos.transStyle
-		}
+			'left':this.props.arrange.pos.left,
+			'top':this.props.arrange.pos.top,
+			'transform':this.props.arrange.transStyle,
+			'MsTransform':this.props.arrange.transStyle,
+			'WebkitTransform':this.props.arrange.transStyle,
+			'OTransform':this.props.arrange.transStyle,
+			'MozTransform':this.props.arrange.transStyle,
+			'transitionDuration':'800ms',
+			
+		};
+		//console.log('this.props.arrange.index=='+this.props.arrange.index+';this.props.centerIndex='+this.props.centerIndex);
+		var imageStyle={
+			'display':this.props.arrange.status==0?'block':'none'
+			};
+		var descStyle={
+			'display':this.props.arrange.status==1?'block':'none',
+			'background':'#dee1e6'	
+			};
+		var imageFigureClass='image-fig';
+		imageFigureClass+=this.props.arrange.status==1?' imageFigInverse':'';
+		imageFigureClass+=this.props.arrange.index==this.props.centerIndex?' centerImageFig':'';
 		return (
-			<figure onClick={this.onClickHandler.bind(this)} className="image-fig" style={styleObj}>
-			<img src={this.props.data.imageUrl} alt={this.props.data.imageTitle} />
-			<figcaption>
-				<h2>
-				{this.props.data.imageTitle}
-				</h2>
-			</figcaption>
+			<figure onClick={this.onClickHandler.bind(this)} className={imageFigureClass}  style={styleObj}>
+				<img src={this.props.data.imageUrl} alt={this.props.data.imageTitle} style={imageStyle}/>
+				<figcaption style={imageStyle}>
+					<h2>
+					{this.props.data.imageTitle}
+					</h2>
+				</figcaption>
+				<figcaption style={descStyle}>
+					<h2>
+					{this.props.data.desc}
+					</h2>
+				</figcaption>
 			</figure>
 			)
 		}	
@@ -62,7 +86,6 @@ class AppComponent extends React.Component {
 		imageArrangeArr:[],
 		centerIndex:0
 		};
-	 
 	}
   //图片可放置区域
   constant={
@@ -83,11 +106,25 @@ class AppComponent extends React.Component {
 		 x:[0,0]
 		 }
 	  } 
+  //点击事件 重新布局
   handler(__index){
-	
 	this.state.centerIndex=__index;
 	this.rearrange(this.state.centerIndex);
   }
+  //inverse 翻转事件 
+  inverse(){
+	  var imageArrangeArr=this.state.imageArrangeArr;
+	  var status=imageArrangeArr[this.state.centerIndex].status;
+	  if(status==0){
+		   imageArrangeArr[this.state.centerIndex].status=1;
+	  }else{
+		   imageArrangeArr[this.state.centerIndex].status=0; 
+	  }
+	  this.setState({
+		  imageArrangeArr:imageArrangeArr  
+	  });//更新布局
+  }
+  
   render() {
 	var imageFigureArr=[];
 	imagesUrlData.forEach(function(__value,__index){
@@ -95,20 +132,19 @@ class AppComponent extends React.Component {
 			this.state.imageArrangeArr[__index]={
 				pos:{
 					left:0,
-					top:0,
-					transStyle:''
+					top:0
+					
 				},
+				transStyle:'',
 				index:__index,
-				status:0
+				status:0 //正反面值
 				}
 			}
-		//arrange={this.state.imageArrangeArr[__index]}
-		//console.log('state.imageArrangeArr ='+JSON.stringify(this.state.imageArrangeArr));	
-		imageFigureArr.push(<ImageFigure handler={this.handler.bind(this)} data={__value} ref={'imageFig'+__index} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}></ImageFigure>);
+		imageFigureArr.push(<ImageFigure key={'imageFig'+__index} handler={this.handler.bind(this)} data={__value} ref={'imageFig'+__index} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}  currentIndex={__index} inverse={this.inverse.bind(this)}></ImageFigure>);
 		}.bind(this));
     return (
-      <section className='stage' ref="stage">
-	  <section className='image-sec'>
+      <section className='stage' ref='stage'>
+	  <section className='image-sev'>
 	  {imageFigureArr}
 	  </section>
 	  <nav className='control-nav'>
@@ -127,8 +163,8 @@ class AppComponent extends React.Component {
 	  var imageArrangeArr=this.state.imageArrangeArr;
 	  var constant=this.constant;
 	  var centerPos=constant.centerPos,
-	  	  centerLeft = constant.centerPos.left,
-	      centerTop = constant.centerPos.top,
+	  	  centerLeft = centerPos.left,
+	      centerTop = centerPos.top,
 		  hPosRange = constant.hPosRange,
 	  	  vPosRange = constant.vPosRange,
 		  hPosRangeLeftSecX=hPosRange.leftSecX,
@@ -147,41 +183,43 @@ class AppComponent extends React.Component {
 	  topImageSliceIndex=Math.ceil(Math.random()*(imageArrangeArr.length-topImageNum));
 	  var topImageArrangeArr=imageArrangeArr.splice(topImageSliceIndex,topImageNum);
 	  topImageArrangeArr.forEach(function(value,index){
+		 
 		  topImageArrangeArr[index].pos.top=getRandomRange(vPosRangeTopSecY[0],vPosRangeTopSecY[1]);
 		  topImageArrangeArr[index].pos.left=getRandomRange(vPosRangeX[0],vPosRangeX[1]);
 		  });
 	  //设置左右两侧的区域的图片
 	 
 	  for(var i=0,j=imageArrangeArr.length,k=j / 2;i<j;i++){
+		  var left=0;
+		  var top=0;
 		  if(i<k){
-			  imageArrangeArr[i].pos.left=getRandomRange(hPosRangeLeftSecX[0],hPosRangeLeftSecX[1]);
-			  imageArrangeArr[i].pos.top=getRandomRange(hPosRangeY[0],hPosRangeY[1]);
+			  left=getRandomRange(hPosRangeLeftSecX[0],hPosRangeLeftSecX[1]);
+			  top=getRandomRange(hPosRangeY[0],hPosRangeY[1]);
 		  }else{
-			  imageArrangeArr[i].pos.left=getRandomRange(hPosRangeRightSecX[0],hPosRangeRightSecX[1]);
-			  imageArrangeArr[i].pos.top=getRandomRange(hPosRangeY[0],hPosRangeY[1]);
+			  left=getRandomRange(hPosRangeRightSecX[0],hPosRangeRightSecX[1]);
+			  top=getRandomRange(hPosRangeY[0],hPosRangeY[1]);
+			  
 		  }
+		  imageArrangeArr[i].pos={
+			  left:left,
+			  top:top
+			  }
 	  }
-	 
-	 
 	  //将数据放在原来的地方
 	  topImageArrangeArr.forEach(function(value,index){
 		  imageArrangeArr.splice(topImageSliceIndex+index,0,topImageArrangeArr[index]);
 		  });
-	  //console.log('centerIndex ='+centerIndex+";imageCenterArrange[0]="+JSON.stringify(imageCenterArrange[0]));
-	  //console.log('centerPos ='+JSON.stringify(centerPos));
-	  //console.log('before '+centerIndex+";imageCenterArrange[0]="+JSON.stringify(imageCenterArrange[0])+';;imageArrangeArr.length='+imageArrangeArr.length);
-	  imageArrangeArr.splice(centerIndex,0,imageCenterArrange[0]);
+	    imageArrangeArr.splice(centerIndex,0,imageCenterArrange[0]);
 	  
 	  //设置旋转角度
 	  imageArrangeArr.forEach(function(value,index){
+		  imageArrangeArr[index].status=0;
 		  if(index==centerIndex){
-			  imageArrangeArr[index].pos.transStyle='rotate(0deg)';
+			  imageArrangeArr[index].transStyle='rotate(0deg)';
 		  }else{
-			   imageArrangeArr[index].pos.transStyle='rotate('+((Math.random()<0.5?"":"-")+Math.ceil(Math.random()*(60)))+'deg)'; 
+			   imageArrangeArr[index].transStyle='rotate('+((Math.random()<0.5?'':'-')+Math.ceil(Math.random()*(30)))+'deg)'; 
 		  }
-		  
 		  });
-	  //console.log('imageArrangeArr ='+JSON.stringify(imageArrangeArr));  
 	  this.setState({
 		  imageArrangeArr:imageArrangeArr  
 	  });
@@ -211,8 +249,8 @@ class AppComponent extends React.Component {
 	  this.constant.centerPos.top=	halfStageH - halfImageH;
 	  //横向区域 左侧的图片的x取值范围
 	  this.constant.hPosRange.leftSecX[0]=-halfImageW;
-	  this.constant.hPosRange.leftSecX[1]=halfStageW - halfImageW * 5;
-	  this.constant.hPosRange.rightSecX[0]=halfStageW + halfImageW * 2 ;
+	  this.constant.hPosRange.leftSecX[1]=halfStageW - halfImageW * 3;
+	  this.constant.hPosRange.rightSecX[0]=halfStageW + halfImageW *2 ;
 	  this.constant.hPosRange.rightSecX[1]=stageDomWidth - halfImageW ;
 	  this.constant.hPosRange.y[0]=-halfImageH;
 	  this.constant.hPosRange.y[1]=stageDomHight - halfImageW;
@@ -228,7 +266,7 @@ class AppComponent extends React.Component {
 }
 
 AppComponent.defaultProps = {
-	inputContent:''
+
 };
 
 export default AppComponent;
