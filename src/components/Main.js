@@ -5,6 +5,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 var imagesUrlData = require('../data/imageUrl.json');
+var refreashImg = require('../images/l_ico0.png');
+var circleImg = require('../images/p_dot.png');
 
 //利用自执行函数将图片名称转换成图片路径  __imageDataArr 参数是将处理的json数据
 imagesUrlData=(function getImageData(__imageDataArr){
@@ -15,7 +17,10 @@ imagesUrlData=(function getImageData(__imageDataArr){
 	return __imageDataArr;
 	})(imagesUrlData);
 //console.log('imagesUrlData='+JSON.stringify(imagesUrlData));
-//imageFigure组件
+
+/*
+*单个图片 imageFigure组件
+*/
 class ImageFigure extends React.Component{
 	constructor(props){
 	super(props);
@@ -78,6 +83,38 @@ class ImageFigure extends React.Component{
 			)
 		}	
 }
+/*
+*控件组件
+*/
+class CircleNav extends React.Component{
+	constructor(props){
+	super(props);
+	this.state={
+		};
+	}
+//	* 控件点击事件 一种是翻转 一种是重新布局 和imageFigure控件功能一样
+//	
+	onClickHandler(){
+	  if(this.props.arrange.index==this.props.centerIndex){
+		  //翻转
+		  this.props.inverse();
+	  }else{ 
+		  this.props.handler(this.props.arrange.index);
+	  }
+	  
+	} 	
+//	*render
+//	
+	render(){
+		var imageSrc=this.props.arrange.index==this.props.centerIndex?refreashImg:circleImg;
+		return(
+			<img src={imageSrc} onClick={this.onClickHandler.bind(this)}/>
+		)	
+	}
+}
+/*
+*画廊应用舞台组件 AppComponent
+*/
 class AppComponent extends React.Component {
   //默认的属性变量
   constructor(props){
@@ -126,7 +163,7 @@ class AppComponent extends React.Component {
   }
   
   render() {
-	var imageFigureArr=[];
+	var imageFigureArr=[],circleNavArr=[];
 	imagesUrlData.forEach(function(__value,__index){
 		if(!this.state.imageArrangeArr[__index]){
 			this.state.imageArrangeArr[__index]={
@@ -140,7 +177,8 @@ class AppComponent extends React.Component {
 				status:0 //正反面值
 				}
 			}
-		imageFigureArr.push(<ImageFigure key={'imageFig'+__index} handler={this.handler.bind(this)} data={__value} ref={'imageFig'+__index} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}  currentIndex={__index} inverse={this.inverse.bind(this)}></ImageFigure>);
+		circleNavArr.push(<CircleNav key={'circleNav'+__index} handler={this.handler.bind(this)} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}  inverse={this.inverse.bind(this)}></CircleNav>);
+		imageFigureArr.push(<ImageFigure key={'imageFig'+__index} handler={this.handler.bind(this)} data={__value} ref={'imageFig'+__index} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}  inverse={this.inverse.bind(this)}></ImageFigure>);
 		}.bind(this));
     return (
       <section className='stage' ref='stage'>
@@ -148,6 +186,7 @@ class AppComponent extends React.Component {
 	  {imageFigureArr}
 	  </section>
 	  <nav className='control-nav'>
+	  {circleNavArr}  
 	  </nav>
 	  </section>
     );
