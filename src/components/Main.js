@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 var imagesUrlData = require('../data/imageUrl.json');
 var refreashImg = require('../images/l_ico0.png');
 var circleImg = require('../images/p_dot.png');
+var tmImg=require('../images/global_tm.gif');
 
 //利用自执行函数将图片名称转换成图片路径  __imageDataArr 参数是将处理的json数据
 imagesUrlData=(function getImageData(__imageDataArr){
@@ -106,9 +107,17 @@ class CircleNav extends React.Component{
 //	*render
 //	
 	render(){
-		var imageSrc=this.props.arrange.index==this.props.centerIndex?refreashImg:circleImg;
+		var styleObj={
+			'backgroundImage':this.props.arrange.index==this.props.centerIndex?'url('+refreashImg+')':'url('+circleImg+')',
+			'backgroundRepeat':"no-repeat",
+			'backgroundPosition':"center",
+			'width':'50px',
+			'height':'50px',
+			'borderRadio':'50px'
+			}
+		var string='  ';
 		return(
-			<img src={imageSrc} onClick={this.onClickHandler.bind(this)}/>
+			<span style={styleObj} onClick={this.onClickHandler.bind(this)}><img src={tmImg} width={'50'} height={'50'}/></span>
 		)	
 	}
 }
@@ -177,6 +186,7 @@ class AppComponent extends React.Component {
 				status:0 //正反面值
 				}
 			}
+			//key 这里的key值在重新渲染的时候会缩短事件 不用全部比较组件 
 		circleNavArr.push(<CircleNav key={'circleNav'+__index} handler={this.handler.bind(this)} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}  inverse={this.inverse.bind(this)}></CircleNav>);
 		imageFigureArr.push(<ImageFigure key={'imageFig'+__index} handler={this.handler.bind(this)} data={__value} ref={'imageFig'+__index} arrange={this.state.imageArrangeArr[__index]} centerIndex={this.state.centerIndex}  inverse={this.inverse.bind(this)}></ImageFigure>);
 		}.bind(this));

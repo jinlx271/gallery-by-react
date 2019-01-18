@@ -34,6 +34,11 @@ html body {
 	background-color:#ffffff;
 	box-sizing: border-box;
 	cursor:point;
+	transform-style:preserve-3d;
+	perspective:1800px;
+	@at-root{
+		
+	}
 }
 .image-fig img{
 	width:400px;
@@ -41,10 +46,12 @@ html body {
 }
 .imageFigInverse{
 	transform:rotateY(180deg);
-	
+	transform:translate(320px);
 }
 .centerImageFig{
 	z-index:102;
+	transform-style:preserve-3d;
+	perspective:1800px;
 }
 figcaption{
 	margin:20px 0 0 0;
@@ -58,8 +65,6 @@ figcaption{
 	height:50px;
 	left:0px;
 	bottom:30px;
-	background-color:#2d2d2d;
-	opacity:.5;
 	text-align:center;
 	z-index:100;
 }
