@@ -34,6 +34,7 @@ class ImageFigure extends React.Component{
 	onClickHandler(){
 	  if(this.props.arrange.index==this.props.centerIndex){
 		  //翻转
+		  //alert('inverse');
 		  this.props.inverse();
 	  }else{ 
 		  this.props.handler(this.props.arrange.index);
@@ -45,44 +46,38 @@ class ImageFigure extends React.Component{
 	*/
 	render(){
 		//transform 兼容
-		var styleObj={
-			'left':this.props.arrange.pos.left,
-			'top':this.props.arrange.pos.top,
-			'transform':this.props.arrange.transStyle,
-			'MsTransform':this.props.arrange.transStyle,
-			'WebkitTransform':this.props.arrange.transStyle,
-			'OTransform':this.props.arrange.transStyle,
-			'MozTransform':this.props.arrange.transStyle,
-			'transitionDuration':'800ms',
+		var styleObj={};
+		styleObj['left']=this.props.arrange.pos.left;	
+		styleObj['top']=this.props.arrange.pos.top;
+		if(this.props.arrange.transStyle!='0'){
 			
-		};
-		//console.log('this.props.arrange.index=='+this.props.arrange.index+';this.props.centerIndex='+this.props.centerIndex);
-		var imageStyle={
-			'display':this.props.arrange.status==0?'block':'none'
-			};
-		var descStyle={
-			'display':this.props.arrange.status==1?'block':'none',
-			'background':'#dee1e6'	
-			};
-		var imageFigureClass='image-fig';
-		imageFigureClass+=this.props.arrange.status==1?' imageFigInverse':'';
+			styleObj['transform']='rotate('+this.props.arrange.transStyle+'deg)';
+			styleObj['MsTransform']='rotate('+this.props.arrange.transStyle+'deg)';
+			styleObj['WebkitTransform']='rotate('+this.props.arrange.transStyle+'deg)';
+			styleObj['OTransform']='rotate('+this.props.arrange.transStyle+'deg)';
+			styleObj['MozTransform']='rotate('+this.props.arrange.transStyle+'deg)';
+			
+		}
+		
+		var imageFigureClass=this.props.arrange.status==1?'imageFigInverse':'image-fig';
 		imageFigureClass+=this.props.arrange.index==this.props.centerIndex?' centerImageFig':'';
 		return (
-			<figure onClick={this.onClickHandler.bind(this)} className={imageFigureClass}  style={styleObj}>
-				<img src={this.props.data.imageUrl} alt={this.props.data.imageTitle} style={imageStyle}/>
-				<figcaption style={imageStyle}>
-					<h2>
+			<figure className={imageFigureClass} style={styleObj} onClick={this.onClickHandler.bind(this)} >
+				<img src={this.props.data.imageUrl} alt={this.props.data.imageTitle} />
+				<figcaption>
+					<h2 className="img-title">
 					{this.props.data.imageTitle}
 					</h2>
-				</figcaption>
-				<figcaption style={descStyle}>
-					<h2>
-					{this.props.data.desc}
-					</h2>
+					<div className='img-back'>
+                      <p>
+                        {this.props.data.desc}
+                      </p>
+                    </div>
 				</figcaption>
 			</figure>
 			)
-		}	
+		}
+			
 }
 /*
 *控件组件
@@ -181,7 +176,7 @@ class AppComponent extends React.Component {
 					top:0
 					
 				},
-				transStyle:'',
+				transStyle:'0',
 				index:__index,
 				status:0 //正反面值
 				}
@@ -264,9 +259,9 @@ class AppComponent extends React.Component {
 	  imageArrangeArr.forEach(function(value,index){
 		  imageArrangeArr[index].status=0;
 		  if(index==centerIndex){
-			  imageArrangeArr[index].transStyle='rotate(0deg)';
+			  imageArrangeArr[index].transStyle='0';
 		  }else{
-			   imageArrangeArr[index].transStyle='rotate('+((Math.random()<0.5?'':'-')+Math.ceil(Math.random()*(30)))+'deg)'; 
+			   imageArrangeArr[index].transStyle=(Math.random()<0.5?'':'-')+Math.ceil(Math.random()*(30)); 
 		  }
 		  });
 	  this.setState({
@@ -299,7 +294,7 @@ class AppComponent extends React.Component {
 	  //横向区域 左侧的图片的x取值范围
 	  this.constant.hPosRange.leftSecX[0]=-halfImageW;
 	  this.constant.hPosRange.leftSecX[1]=halfStageW - halfImageW * 3;
-	  this.constant.hPosRange.rightSecX[0]=halfStageW + halfImageW *2 ;
+	  this.constant.hPosRange.rightSecX[0]=halfStageW + halfImageW  ;
 	  this.constant.hPosRange.rightSecX[1]=stageDomWidth - halfImageW ;
 	  this.constant.hPosRange.y[0]=-halfImageH;
 	  this.constant.hPosRange.y[1]=stageDomHight - halfImageW;
